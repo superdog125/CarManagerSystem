@@ -1,0 +1,183 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"
+	xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" 
+	xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:tx="http://www.springframework.org/schema/tx"
+	xmlns:aop="http://www.springframework.org/schema/aop"
+	xsi:schemaLocation="http://www.springframework.org/schema/beans 
+						http://www.springframework.org/schema/beans/spring-beans-2.5.xsd
+						http://www.springframework.org/schema/context 
+						http://www.springframework.org/schema/context/spring-context-2.5.xsd
+						http://www.springframework.org/schema/aop 
+       					http://www.springframework.org/schema/aop/spring-aop.xsd
+						http://www.springframework.org/schema/tx 
+						http://www.springframework.org/schema/tx/spring-tx-2.5.xsd">
+
+	<bean id="dataSource" class="org.apache.commons.dbcp.BasicDataSource">
+		<property name="driverClassName" value="com.mysql.jdbc.Driver">
+		</property>
+	    <property name="url" value="jdbc:mysql://localhost/cardb?useUnicode=true&amp;characterEncoding=UTF-8">
+		</property>
+		<property name="username" value="root"></property>
+		<property name="password" value="125225"></property>
+	</bean>
+	
+	<bean id="sessionFactory"
+		class="org.springframework.orm.hibernate3.LocalSessionFactoryBean">
+		<property name="dataSource" ref="dataSource"></property>
+		<property name="hibernateProperties">
+			<props>
+				<prop key="hibernate.dialect">org.hibernate.dialect.MySQL5Dialect</prop>
+				<prop key="hibernate.show_sql">true</prop>
+				<prop key="hbm2ddl.auto">create</prop>
+			</props>
+		</property>
+		<property name="mappingResources">
+			<list>
+	           <value>com/domain/User.hbm.xml</value>
+			   <value>com/domain/Driver.hbm.xml</value>
+			   <value>com/domain/Car.hbm.xml</value>
+			   <value>com/domain/Techer.hbm.xml</value>
+			   <value>com/domain/CarInfo.hbm.xml</value>
+			</list>	
+		</property>
+	</bean>	
+	
+	<!-- 有hibernate.cfn开发时,Dao层不需要集成HibernateDaoSupport,注入的是HibernateTemplate进行使用，其底层是sessionFactory -->
+	<!-- 创建模板 -->
+	<!-- 
+	<bean id="hibernateTemplate" class="org.springframework.orm.hibernate3.HibernateTemplate">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	 -->
+	<!-- dao -->
+	<!-- 
+	<bean id="loginDao" class="com.dao.impl.login.LoginDaoImpl">
+	    <property name="hibernateTemplate" ref="hibernateTemplate"></property>
+	</bean>
+	 -->
+	
+	
+	<!-- 无hibernate.cfn开发时,Dao层继承HibernateDaoSupport,注入的是sessionFactory进行使用,可直接生成HibernateTemplate -->
+	<!-- login -->
+	<!-- dao -->
+	<bean id="loginDao" class="com.dao.impl.login.LoginDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- service -->
+	<bean id="loginService" class="com.service.impl.login.LoginServiceImpl">
+		<property name="loginDao" ref="loginDao"></property>
+	</bean>
+	<!-- action类配置区 -->
+	<bean id="loginAction" class="com.action.login.LoginAction" scope="prototype">
+		<property name="loginService" ref="loginService"></property>
+	</bean>
+	<bean id="registerAction" class="com.action.login.RegisterAction" scope="prototype">
+		<property name="loginService" ref="loginService"></property>
+		<property name="userService" ref="userService"></property>
+	</bean>
+	<bean id="repassAction" class="com.action.login.RepassAction" scope="prototype">
+		<property name="loginService" ref="loginService"></property>
+	</bean>
+	<bean id="exitAction" class="com.action.login.ExitAction" scope="prototype">
+		<property name="loginService" ref="loginService"></property>
+	</bean>
+	
+	
+	<!-- car -->
+	<!-- dao -->
+	<bean id="carDao" class="com.dao.impl.car.CarDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- service -->
+	<bean id="carService" class="com.service.impl.car.CarServiceImpl">
+		<property name="carDao" ref="carDao"></property>
+	</bean>
+	<!-- action类配置区 -->
+	<bean id="carAction" class="com.action.car.CarAction" scope="prototype">
+		<property name="carService" ref="carService"></property>
+	</bean>
+	
+	
+	<!-- user -->
+	<!-- dao -->
+	<bean id="userDao" class="com.dao.impl.user.UserDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- service -->
+	<bean id="userService" class="com.service.impl.user.UserServiceImpl">
+		<property name="userDao" ref="userDao"></property>
+	</bean>
+	<!-- action类配置区 -->
+	<bean id="userAction" class="com.action.user.UserAction"  scope="prototype">
+		<property name="userService" ref="userService"></property>
+	</bean>
+	
+	
+	<!-- driver -->
+	<!-- dao -->
+	<bean id="driverDao" class="com.dao.impl.driver.DriverDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- service -->
+	<bean id="driverService" class="com.service.impl.driver.DriverServiceImpl">
+		<property name="driverDao" ref="driverDao"></property>
+	</bean>
+	<!-- action类配置区 -->
+	<bean id="driverAction" class="com.action.driver.DriverAction" scope="prototype">
+		<property name="driverService" ref="driverService"></property>
+	</bean>
+	
+	
+	<!-- techer -->
+	<!-- dao -->
+	<bean id="techerDao" class="com.dao.impl.techer.TecherDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- service -->
+	<bean id="techerService" class="com.service.impl.techer.TecherServiceImpl">
+		<property name="techerDao" ref="techerDao"></property>
+	</bean>
+	<!-- action类配置区 -->
+	<bean id="techerAction" class="com.action.techer.TecherAction" scope="prototype">
+		<property name="techerService" ref="techerService"></property>
+	</bean>
+	
+	
+	<!-- carinfo -->
+	<!-- dao -->
+	<bean id="carInfoDao" class="com.dao.impl.carinfo.CarInfoDaoImpl">
+	    <property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	<!-- service -->
+	<bean id="carInfoService" class="com.service.impl.carinfo.CarInfoServiceImpl">
+		<property name="carInfoDao" ref="carInfoDao"></property>
+	</bean>
+	<!-- action类配置区 -->
+	<bean id="carInfoAction" class="com.action.carinfo.CarInfoAction" scope="prototype">
+		<property name="carInfoService" ref="carInfoService"></property>
+	</bean>
+	
+	
+	
+	
+	
+	
+	<!-- 事务管理 -->
+	<!-- 1.事务管理器: HibernateTransactionManager -->
+	<bean id="txManager" class="org.springframework.orm.hibernate3.HibernateTransactionManager">
+		<property name="sessionFactory" ref="sessionFactory"></property>
+	</bean>
+	
+	<!-- 2.事务详情 给ABC进行具体事务设置-->
+	<tx:advice id="txAdvice" transaction-manager="txManager">
+		<tx:attributes>
+			<tx:method name="execute"/>
+		</tx:attributes>
+	</tx:advice>
+	
+	<!-- 3.AOP编程 ABCD中筛选ABC -->
+	<aop:config>
+		<aop:advisor advice-ref="txAdvice" pointcut="execution(* com.service..*.*(..))" />
+	</aop:config>
+</beans>
